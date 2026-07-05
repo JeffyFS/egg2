@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tratamiento Matemático — Oncología CAR-T</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #1a1f2e;
+  --ink-mid: #3d4560;
+  --ink-dim: #6b7390;
+  --ink-faint: #9aa0b4;
+  --page: #f7f8fc;
+  --page-warm: #f0f2f8;
+  --white: #ffffff;
+  --blue: #2353c7;
+  --blue-light: #e8edfa;
+  --blue-mid: #4a6fd8;
+  --red-cell: #c9394a;
+  --green-ok: #1f8a5e;
+  --amber: #c07a18;
+  --border: #dde1ed;
+  --border-strong: #c4c9dc;
+  --mono: 'JetBrains Mono', monospace;
+  --serif: 'Source Serif 4', Georgia, serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --radius: 10px;
+  --shadow: 0 2px 12px rgba(26,31,46,0.08);
+  --shadow-md: 0 4px 24px rgba(26,31,46,0.12);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.65;
+  min-height: 100vh;
+}
+
+/* ── Print-style page layout ── */
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 24px 64px;
+}
+
+/* ── Header ── */
+.doc-header {
+  border-bottom: 2px solid var(--ink);
+  padding: 32px 0 20px;
+  margin-bottom: 0;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: 11px;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+.logos-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+.logo-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.logo-bbiobio { background: #003366; color: white; font-size: 10px; letter-spacing: 0.05em; text-align: center; line-height: 1.2; }
+.logo-fedpem { background: #e8edfa; color: var(--blue); border: 1.5px solid var(--blue); font-family: var(--serif); font-style: italic; }
+.logo-cmm { background: #1a1f2e; color: white; font-size: 10px; text-align: center; line-height: 1.3; }
+.logo-label { font-size: 11.5px; color: var(--ink-dim); line-height: 1.4; max-width: 120px; }
+.logo-label strong { display: block; color: var(--ink); font-size: 12.5px; }
+
+.doc-title {
+  font-family: var(--serif);
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+.doc-meta {
+  font-size: 13px;
+  color: var(--ink-mid);
+  line-height: 1.7;
+}
+.doc-meta em { font-style: italic; color: var(--ink-dim); }
+.doc-institution {
+  font-weight: 600;
+  font-size: 13.5px;
+  margin-top: 6px;
+  color: var(--ink);
+}
+
+/* ── Info box (datos + agenda) ── */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 24px 0;
+}
+@media (max-width: 620px) { .info-grid { grid-template-columns: 1fr; } }
+
+.box {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  background: var(--white);
+}
+.box-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.field-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.field {
+  flex: 1;
+  min-width: 120px;
+  border-bottom: 1px solid var(--border-strong);
+  padding-bottom: 2px;
+  font-size: 13px;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  min-height: 22px;
+}
+.field-label {
+  font-size: 11px;
+  color: var(--ink-dim);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.agenda-list {
+  list-style: none;
+  counter-reset: agenda;
+}
+.agenda-list li {
+  counter-increment: agenda;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 13.5px;
+  color: var(--ink-mid);
+  border-bottom: 1px solid var(--page-warm);
+}
+.agenda-list li::before {
+  content: counter(agenda);
+  min-width: 22px;
+  height: 22px;
+  background: var(--blue);
+  color: white;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.objective-box {
+  background: var(--blue-light);
+  border-left: 4px solid var(--blue);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 14px 18px;
+  margin: 20px 0;
+  font-size: 14px;
+}
+.objective-box strong { display: block; font-weight: 700; margin-bottom: 4px; color: var(--blue); font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ── Section headers ── */
+.section {
+  margin-top: 40px;
+}
+.section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 6px;
+}
+.section h2 {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+.section h3 {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 24px 0 10px;
+}
+
+/* ── Preguntas introductorias ── */
+.question-block {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 14px;
+}
+.question-block .q-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.question-block p {
+  font-size: 14px;
+  color: var(--ink-mid);
+  margin-bottom: 10px;
+}
+.answer-line {
+  height: 1px;
+  background: var(--border-strong);
+  margin: 8px 0;
+}
+.answer-lines { display: flex; flex-direction: column; gap: 14px; margin-top: 10px; }
+
+/* ── Simulación interactiva del modelo ── */
+.sim-container {
+  background: var(--ink);
+  border-radius: 14px;
+  overflow: hidden;
+  margin: 24px 0;
+  box-shadow: var(--shadow-md);
+}
+.sim-header {
+  background: #0d1626;
+  padding: 16px 22px 14px;
+  border-bottom: 1px solid #1e2c46;
+}
+.sim-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: #5b8cff;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.sim-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e7edf7;
+  margin-bottom: 4px;
+}
+.sim-subtitle {
+  font-size: 12.5px;
+  color: #8894a8;
+  line-height: 1.5;
+}
+.sim-subtitle code {
+  font-family: var(--mono);
+  background: #0a1120;
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: #5b8cff;
+  font-size: 11.5px;
+}
+.sim-def-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #1e2c46;
+}
+.sim-def-item {
+  flex: 1 1 200px;
+  background: #0a1120;
+  border: 1px solid #1e2c46;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #8894a8;
+}
+.sim-def-item b {
+  color: #e7edf7;
+  display: block;
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+/* ── Modelo compartimental (reemplaza imagen) ── */
+.compartmental-vis {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 20px 0;
+  box-shadow: var(--shadow);
+}
+.comp-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 18px;
+  text-align: center;
+}
+.comp-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.comp-cell {
+  background: var(--blue-light);
+  border: 2px solid var(--blue);
+  border-radius: 10px;
+  padding: 14px 20px;
+  text-align: center;
+  min-width: 130px;
+}
+.comp-cell.cart { background: #e8f5ee; border-color: var(--green-ok); }
+.comp-cell-symbol {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--blue);
+  line-height: 1;
+}
+.comp-cell.cart .comp-cell-symbol { color: var(--green-ok); }
+.comp-cell-label {
+  font-size: 11px;
+  color: var(--ink-dim);
+  margin-top: 4px;
+}
+.comp-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 10px;
+  min-width: 80px;
+}
+.comp-arrow-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--red-cell);
+  background: #fde8ea;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.comp-arrow-line {
+  width: 60px;
+  height: 2px;
+  background: var(--red-cell);
+  position: relative;
+}
+.comp-arrow-line::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: -4px;
+  border-left: 9px solid var(--red-cell);
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+.comp-rho {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 10px;
+  min-width: 70px;
+}
+.comp-rho-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--blue);
+  background: var(--blue-light);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.comp-rho-line {
+  width: 50px;
+  height: 2px;
+  background: var(--blue);
+  position: relative;
+}
+.comp-rho-line::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: -4px;
+  border-left: 9px solid var(--blue);
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+
+.equation-box {
+  background: #1a1f2e;
+  color: #e7edf7;
+  border-radius: 10px;
+  padding: 16px 22px;
+  margin: 16px 0;
+  font-family: var(--mono);
+  font-size: 15px;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+.equation-box .eq-label {
+  font-size: 10.5px;
+  color: #5b8cff;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+}
+.equation-box .eq-main { font-size: 17px; font-weight: 600; }
+.equation-box .eq-verbal {
+  font-size: 11.5px;
+  color: #8894a8;
+  margin-top: 10px;
+  font-family: var(--sans);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.params-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  margin: 16px 0;
+}
+.params-table th {
+  background: var(--page-warm);
+  color: var(--ink-dim);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+.params-table td {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  vertical-align: top;
+}
+.params-table td:first-child {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--blue);
+  background: var(--blue-light);
+  white-space: nowrap;
+}
+.params-table tr:hover td { background: #f4f6fc; }
+.params-table tr:hover td:first-child { background: #d9e3f8; }
+
+.obs-list {
+  list-style: none;
+  margin: 14px 0;
+}
+.obs-list li {
+  display: flex;
+  gap: 12px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--border);
+  margin-bottom: 8px;
+  background: var(--white);
+  border-radius: 0 8px 8px 0;
+  font-size: 13.5px;
+  color: var(--ink-mid);
+  line-height: 1.5;
+}
+.obs-list li.remision { border-left-color: var(--green-ok); background: #f0faf5; }
+.obs-list li.recaida  { border-left-color: var(--red-cell); background: #fdf0f1; }
+.obs-num {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ink-faint);
+  flex-shrink: 0;
+}
+.obs-list li.remision .obs-num { color: var(--green-ok); }
+.obs-list li.recaida  .obs-num { color: var(--red-cell); }
+
+/* ── Actividades ── */
+.activity-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--ink);
+  color: white;
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 14px 20px;
+  margin-top: 28px;
+}
+.activity-badge {
+  background: var(--blue-mid);
+  color: white;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+.activity-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+}
+.activity-body {
+  border: 1px solid var(--border-strong);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding: 20px 22px;
+  background: var(--white);
+}
+.activity-intro {
+  font-size: 13.5px;
+  color: var(--ink-dim);
+  margin-bottom: 18px;
+  line-height: 1.6;
+  padding: 10px 14px;
+  background: var(--page-warm);
+  border-radius: 7px;
+}
+
+.q-item {
+  display: flex;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--page-warm);
+}
+.q-item:last-child { border-bottom: none; }
+.q-num {
+  min-width: 28px;
+  height: 28px;
+  background: var(--blue);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.q-content { flex: 1; }
+.q-text {
+  font-size: 14px;
+  color: var(--ink);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.q-param {
+  font-family: var(--mono);
+  font-size: 13px;
+  background: var(--blue-light);
+  color: var(--blue);
+  padding: 3px 10px;
+  border-radius: 5px;
+  display: inline-block;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.ans-lines { display: flex; flex-direction: column; gap: 13px; margin-top: 6px; }
+.ans-line { height: 1px; background: var(--border-strong); }
+
+.outcomes-hint {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.outcome-tag {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1.5px solid;
+}
+.outcome-tag.remision { color: var(--green-ok); border-color: var(--green-ok); background: #f0faf5; }
+.outcome-tag.control  { color: var(--amber);    border-color: var(--amber);    background: #fdf8ee; }
+.outcome-tag.recaida  { color: var(--red-cell); border-color: var(--red-cell); background: #fdf0f1; }
+
+/* ── Reflexión ── */
+.reflection-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 20px 0;
+}
+@media (max-width: 600px) { .reflection-grid { grid-template-columns: 1fr; } }
+
+.ref-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+.ref-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--blue);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.ref-q {
+  font-size: 13.5px;
+  color: var(--ink);
+  margin-bottom: 14px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--blue);
+  color: white;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 14px 28px;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(35,83,199,0.35);
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  margin-top: 8px;
+}
+.cta-button:hover {
+  background: #1b41a8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(35,83,199,0.45);
+}
+.cta-button svg { flex-shrink: 0; }
+
+.cta-section {
+  background: var(--ink);
+  border-radius: 14px;
+  padding: 28px 28px 24px;
+  margin-top: 24px;
+  text-align: center;
+}
+.cta-section h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: white;
+  margin-bottom: 8px;
+}
+.cta-section p {
+  font-size: 13.5px;
+  color: #8894a8;
+  margin-bottom: 18px;
+  line-height: 1.55;
+}
+
+/* ── Divisor de sección ── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 32px 0;
+}
+
+/* ── SIMULADOR EMBEBIDO ── */
+:root {
+  --sim-bg:#0a1120; --sim-panel:#101a30; --sim-panel-2:#0d1626; --sim-border:#1e2c46;
+  --sim-text:#e7edf7; --sim-dim:#8894a8; --sim-faint:#5c6a82;
+  --sim-accent:#5b8cff; --sim-accent-glow:rgba(91,140,255,0.25);
+  --sim-red:#ef5b5b; --sim-blue-dash:#5fa8f0;
+  --sim-green:#5fd68a;
+}
+
+.sim-inner {
+  background: radial-gradient(1000px 600px at 10% -5%, #101c38 0%, var(--sim-bg) 60%);
+  padding: 20px;
+}
+.sim-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 720px) { .sim-grid { grid-template-columns: 1fr; } }
+
+.sim-card {
+  background: linear-gradient(180deg, var(--sim-panel) 0%, var(--sim-panel-2) 100%);
+  border: 1px solid var(--sim-border);
+  border-radius: 12px;
+  padding: 18px;
+}
+.sim-panel-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--sim-dim);
+  text-transform: uppercase;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--sim-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sim-param { margin-bottom: 20px; }
+.sim-param-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 3px; }
+.sim-param-name { font-size: 12.5px; font-weight: 600; color: var(--sim-text); }
+.sim-param-sym  { color: var(--sim-accent); font-family: var(--mono); font-weight: 500; }
+.sim-param-desc { font-size: 11px; color: var(--sim-faint); line-height: 1.4; margin-bottom: 8px; }
+.sim-param-row  { display: flex; align-items: center; gap: 10px; }
+.sim-param-value { font-family: var(--mono); font-size: 13px; font-weight: 600; min-width: 60px; text-align: right; line-height: 1.1; color: var(--sim-text); }
+.sim-param-value small { display: block; font-size: 9px; color: var(--sim-faint); font-weight: 400; text-align: right; }
+input[type=range].sim-range {
+  -webkit-appearance: none; appearance: none; flex: 1; height: 4px;
+  border-radius: 3px; background: #24314e; outline: none;
+}
+input[type=range].sim-range::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%;
+  background: var(--sim-accent); box-shadow: 0 0 0 4px var(--sim-accent-glow);
+  cursor: pointer; border: 2px solid #0a1120;
+}
+input[type=range].sim-range::-moz-range-thumb {
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--sim-accent); cursor: pointer; border: 2px solid #0a1120;
+}
+
+.sim-toggle { font-family: var(--mono); font-size: 10px; color: var(--sim-faint); cursor: pointer; user-select: none; }
+.sim-toggle:hover { color: var(--sim-accent); }
+#simCSection { display: none; padding-top: 4px; }
+#simCSection.open { display: block; }
+
+.sim-reset-btn {
+  width: 100%; background: #16233e; border: 1px solid var(--sim-border); color: var(--sim-text);
+  font-family: var(--sans); font-size: 12.5px; font-weight: 600; padding: 10px;
+  border-radius: 8px; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 6px; transition: background .15s ease; margin-top: 4px;
+}
+.sim-reset-btn:hover { background: #1b2a48; }
+
+.sim-chart-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.sim-chart-title { font-size: 14px; font-weight: 700; color: var(--sim-text); }
+.sim-legend { display: flex; gap: 18px; margin: 12px 0 8px 2px; font-family: var(--mono); font-size: 11.5px; color: var(--sim-dim); flex-wrap: wrap; }
+.sim-legend-item { display: flex; align-items: center; gap: 6px; }
+.sim-swatch { width: 16px; height: 3px; border-radius: 2px; }
+.sim-swatch.solid { background: var(--sim-red); }
+.sim-swatch.dash  { background: repeating-linear-gradient(90deg,var(--sim-blue-dash) 0 5px, transparent 5px 9px); }
+.sim-chart-box { position: relative; height: 420px; margin-top: 4px; }
+.sim-status-row { display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+.sim-stat {
+  background: #0d1626; border: 1px solid var(--sim-border); border-radius: 9px;
+  padding: 10px 14px; flex: 1; min-width: 120px;
+}
+.sim-stat-label { font-size: 10px; color: var(--sim-faint); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+.sim-stat-value { font-family: var(--mono); font-size: 13.5px; font-weight: 600; color: var(--sim-text); }
+
+.sim-footer {
+  margin-top: 14px;
+  color: var(--sim-faint);
+  font-size: 11px;
+  line-height: 1.6;
+  padding: 12px 16px;
+  border-top: 1px solid var(--sim-border);
+}
+.sim-footer code {
+  font-family: var(--mono);
+  background: #0d1626;
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--sim-accent);
+  font-size: 10.5px;
+}
+
+/* ── Responsive ── */
+@media print {
+  .sim-container { display: none; }
+  .cta-button { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ENCABEZADO -->
+  <header class="doc-header">
+    <div class="header-top">
+      <span>Universidad del Bío-Bío</span>
+      <span>Espacio de Interacción Didáctica</span>
+    </div>
+
+    <div class="logos-row">
+      <div class="logo-block">
+        <div class="logo-icon logo-bbiobio">UBB</div>
+        <div class="logo-label"><strong>Universidad del Bío-Bío</strong>Facultad de Ciencias</div>
+      </div>
+      <div class="logo-block">
+        <div class="logo-icon logo-fedpem">fe²∂</div>
+        <div class="logo-label"><strong>fe²∂pem</strong>Seminario Estudiantil</div>
+      </div>
+      <div class="logo-block">
+        <div class="logo-icon logo-cmm">25<br>CMM</div>
+        <div class="logo-label"><strong>Centro de Modelamiento Matemático</strong></div>
+      </div>
+    </div>
+
+    <h1 class="doc-title">Tratamiento Matemático</h1>
+    <div class="doc-meta">
+      Prof. Braulio Gallegos, Fabián San Martín, Javier Téllez<br>
+      <em>IV Seminario Estudiantil de Ecuaciones Diferenciales y Educación Matemática</em><br>
+      <em>Vinculación con el Medio para el Fortalecimiento de la Enseñanza y las Matemáticas Aplicadas.</em>
+    </div>
+    <div class="doc-institution">
+      Facultad de Ciencias — Facultad de Educación y Humanidades<br>
+      Universidad del Bío-Bío &nbsp;·&nbsp; Año 2026
+    </div>
+  </header>
+
+  <!-- DATOS + AGENDA -->
+  <div class="info-grid" style="margin-top:28px;">
+    <div class="box">
+      <div class="box-title">Datos del estudiante</div>
+      <div class="field-row">
+        <div>
+          <div class="field-label">Nombre completo</div>
+          <div class="field"></div>
+        </div>
+        <div style="max-width:120px;">
+          <div class="field-label">Fecha</div>
+          <div class="field"></div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div>
+          <div class="field-label">Institución</div>
+          <div class="field"></div>
+        </div>
+        <div style="max-width:120px;">
+          <div class="field-label">Curso</div>
+          <div class="field"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="box-title">Agenda del día</div>
+      <ol class="agenda-list">
+        <li>Presentación, estructura de la clase y lectura del OA EID</li>
+        <li>Preguntas de Activación de conocimientos previos</li>
+        <li>Contextualización del Tratamiento</li>
+        <li>Modelos del Tratamiento</li>
+        <li>Actividad Interactiva</li>
+        <li>Espacio de reflexión e interacción</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="objective-box">
+    <strong>Objetivo de la sesión</strong>
+    Interpretar gráficos de un tratamiento oncológico asociado a un modelo de ecuación diferencial mostrando una actitud participativa e interés por el aprendizaje.
+  </div>
+
+  <hr class="divider">
+
+  <!-- SECCIÓN 1: PREGUNTAS INTRODUCTORIAS -->
+  <section class="section">
+    <div class="section-label">Sección 1</div>
+    <h2>Preguntas de Activación</h2>
+
+    <div class="question-block">
+      <div class="q-label">Pregunta 1 · 1 minuto</div>
+      <p>¿Qué es el Cáncer?</p>
+      <div class="answer-lines">
+        <div class="answer-line"></div>
+        <div class="answer-line"></div>
+        <div class="answer-line"></div>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-label">Pregunta 2 · 1 minuto</div>
+      <p>¿Qué tratamiento conocen para tratar el cáncer?</p>
+      <div class="answer-lines">
+        <div class="answer-line"></div>
+        <div class="answer-line"></div>
+        <div class="answer-line"></div>
+      </div>
+    </div>
+
+    <div class="question-block">
+      <div class="q-label">Pregunta 3 · 1 minuto</div>
+      <p>¿Qué utilidad presenta la Matemática al estudiar la efectividad de un tratamiento contra el cáncer?</p>
+      <div class="answer-lines">
+        <div class="answer-line"></div>
+        <div class="answer-line"></div>
+        <div class="answer-line"></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- SECCIÓN 2: EL TRATAMIENTO CAR-T (simulación interactiva reemplaza imagen) -->
+  <section class="section">
+    <div class="section-label">Sección 2</div>
+    <h2>El Tratamiento CAR-T</h2>
+
+    <p style="color:var(--ink-mid); margin-bottom:20px; font-size:14px; line-height:1.65;">
+      La <strong>Terapia de Células CAR-T</strong> es un tratamiento oncológico personalizado donde se extraen 
+      células T del paciente, se reprograman genéticamente para reconocer células cancerosas y se reinfunden 
+      al cuerpo para atacarlas. La siguiente simulación interactiva reproduce los 5 pasos del proceso y 
+      muestra los parámetros del modelo matemático que lo describe.
+    </p>
+
+    <!-- SIMULACIÓN INTERACTIVA DEL PROCESO CAR-T -->
+    <div style="background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-md); margin-bottom: 24px;">
+      <div style="background: #1a1f2e; padding: 14px 20px;">
+        <div style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; color: #5b8cff; text-transform: uppercase; margin-bottom: 4px;">Proceso del tratamiento</div>
+        <div style="font-size: 15px; font-weight: 700; color: white;">Pasos de la Terapia CAR-T</div>
+        <div style="font-size: 12px; color: #8894a8; margin-top: 3px;">Haz clic en cada paso para explorar el proceso</div>
+      </div>
+      <div style="padding: 20px;">
+        <!-- Pasos del proceso -->
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;" id="cartSteps">
+          <button onclick="showStep(0)" class="step-btn active-step" id="step-0" style="flex:1; min-width:120px; border:2px solid #2353c7; background:#e8edfa; color:#2353c7; padding:10px 8px; border-radius:9px; cursor:pointer; font-family:var(--sans); font-size:12.5px; font-weight:600; transition:all .2s;">
+            <div style="font-size:20px; margin-bottom:4px;">🩸</div>
+            <div>1. Recoger sangre</div>
+          </button>
+          <button onclick="showStep(1)" class="step-btn" id="step-1" style="flex:1; min-width:120px; border:2px solid var(--border); background:var(--page); color:var(--ink-mid); padding:10px 8px; border-radius:9px; cursor:pointer; font-family:var(--sans); font-size:12.5px; font-weight:600; transition:all .2s;">
+            <div style="font-size:20px; margin-bottom:4px;">🔬</div>
+            <div>2. Reprogramar Células T</div>
+          </button>
+          <button onclick="showStep(2)" class="step-btn" id="step-2" style="flex:1; min-width:120px; border:2px solid var(--border); background:var(--page); color:var(--ink-mid); padding:10px 8px; border-radius:9px; cursor:pointer; font-family:var(--sans); font-size:12.5px; font-weight:600; transition:all .2s;">
+            <div style="font-size:20px; margin-bottom:4px;">🧬</div>
+            <div>3. Multiplicar CAR-T</div>
+          </button>
+          <button onclick="showStep(3)" class="step-btn" id="step-3" style="flex:1; min-width:120px; border:2px solid var(--border); background:var(--page); color:var(--ink-mid); padding:10px 8px; border-radius:9px; cursor:pointer; font-family:var(--sans); font-size:12.5px; font-weight:600; transition:all .2s;">
+            <div style="font-size:20px; margin-bottom:4px;">💉</div>
+            <div>4. Inyección</div>
+          </button>
+          <button onclick="showStep(4)" class="step-btn" id="step-4" style="flex:1; min-width:120px; border:2px solid var(--border); background:var(--page); color:var(--ink-mid); padding:10px 8px; border-radius:9px; cursor:pointer; font-family:var(--sans); font-size:12.5px; font-weight:600; transition:all .2s;">
+            <div style="font-size:20px; margin-bottom:4px;">⚔️</div>
+            <div>5. Atacar leucemia</div>
+          </button>
+        </div>
+
+        <!-- Panel de descripción del paso -->
+        <div id="stepPanel" style="background: #f7f8fc; border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; min-height: 90px; transition: all .2s;">
+          <div id="stepTitle" style="font-weight:700; font-size:15px; color:var(--ink); margin-bottom:6px;">🩸 Paso 1: Extracción de sangre</div>
+          <div id="stepDesc" style="font-size:13.5px; color:var(--ink-mid); line-height:1.65;">Se extrae sangre del paciente para obtener sus propias células T. Estas células forman parte del sistema inmune y son el punto de partida del tratamiento.</div>
+          <div id="stepMath" style="margin-top:10px; display:none;"></div>
+        </div>
+
+        <!-- Diagrama del modelo con parámetros -->
+        <div style="margin-top: 20px; background: #1a1f2e; border-radius: 10px; padding: 18px;">
+          <div style="font-family: var(--mono); font-size: 10px; color: #5b8cff; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 14px;">Diagrama del modelo matemático</div>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap;">
+            <!-- L(t) -->
+            <div style="background:#2a1a1f; border:2px solid #ef5b5b; border-radius:10px; padding:14px 18px; text-align:center; min-width:110px;">
+              <div style="font-family:var(--mono); font-size:20px; font-weight:700; color:#ef5b5b;">L(t)</div>
+              <div style="font-size:11px; color:#8894a8; margin-top:4px;">Células<br>leucémicas</div>
+            </div>
+            <!-- Arrow con ρ -->
+            <div style="display:flex; flex-direction:column; align-items:center; padding:0 6px;">
+              <div style="font-family:var(--mono); font-size:12px; color:#5b8cff; background:rgba(91,140,255,0.15); padding:2px 8px; border-radius:4px; margin-bottom:3px; font-weight:600;">ρ (proliferación)</div>
+              <div style="display:flex; align-items:center; gap:4px;">
+                <div style="width:6px; height:2px; background:#5b8cff; border-radius:1px;"></div>
+                <div style="width:30px; height:2px; background:#5b8cff;"></div>
+                <div style="border-left:8px solid #5b8cff; border-top:5px solid transparent; border-bottom:5px solid transparent;"></div>
+              </div>
+            </div>
+            <!-- L loop -->
+            <div style="background:#2a1a1f; border:2px dashed #ef5b5b; border-radius:10px; padding:10px 14px; text-align:center; min-width:90px;">
+              <div style="font-family:var(--mono); font-size:13px; font-weight:700; color:#ef5b5b;">ρ·L</div>
+              <div style="font-size:10px; color:#8894a8; margin-top:2px;">crecimiento</div>
+            </div>
+            <!-- Arrow con α -->
+            <div style="display:flex; flex-direction:column; align-items:center; padding:0 6px;">
+              <div style="font-family:var(--mono); font-size:12px; color:#ef5b5b; background:rgba(239,91,91,0.15); padding:2px 8px; border-radius:4px; margin-bottom:3px; font-weight:600;">α (reconocimiento)</div>
+              <div style="display:flex; align-items:center; gap:4px;">
+                <div style="width:6px; height:2px; background:#ef5b5b; border-radius:1px;"></div>
+                <div style="width:30px; height:2px; background:#ef5b5b;"></div>
+                <div style="border-left:8px solid #ef5b5b; border-top:5px solid transparent; border-bottom:5px solid transparent;"></div>
+              </div>
+            </div>
+            <!-- C(t) -->
+            <div style="background:#1a2a1f; border:2px solid #5fd68a; border-radius:10px; padding:14px 18px; text-align:center; min-width:110px;">
+              <div style="font-family:var(--mono); font-size:20px; font-weight:700; color:#5fd68a;">C(t)</div>
+              <div style="font-size:11px; color:#8894a8; margin-top:4px;">Células<br>CAR-T</div>
+            </div>
+          </div>
+          <!-- Parámetros -->
+          <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:16px;">
+            <div style="flex:1; min-width:160px; background:rgba(255,255,255,0.04); border:1px solid #1e2c46; border-radius:8px; padding:10px 12px;">
+              <div style="font-family:var(--mono); font-size:12px; color:#5b8cff; font-weight:700; margin-bottom:3px;">ρ</div>
+              <div style="font-size:11.5px; color:#8894a8;">Tasa de proliferación celular</div>
+            </div>
+            <div style="flex:1; min-width:160px; background:rgba(255,255,255,0.04); border:1px solid #1e2c46; border-radius:8px; padding:10px 12px;">
+              <div style="font-family:var(--mono); font-size:12px; color:#5b8cff; font-weight:700; margin-bottom:3px;">α</div>
+              <div style="font-size:11.5px; color:#8894a8;">Tasa de reconocimiento de células CAR-T sobre células leucémicas</div>
+            </div>
+            <div style="flex:1; min-width:160px; background:rgba(255,255,255,0.04); border:1px solid #1e2c46; border-radius:8px; padding:10px 12px;">
+              <div style="font-family:var(--mono); font-size:12px; color:#ef5b5b; font-weight:700; margin-bottom:3px;">τ<sub style="font-size:10px;">C</sub></div>
+              <div style="font-size:11.5px; color:#8894a8;">Tasa de eliminación de células leucémicas por células CAR-T</div>
+            </div>
+            <div style="flex:1; min-width:160px; background:rgba(255,255,255,0.04); border:1px solid #1e2c46; border-radius:8px; padding:10px 12px;">
+              <div style="font-family:var(--mono); font-size:12px; color:#ef5b5b; font-weight:700; margin-bottom:3px;">L(t)</div>
+              <div style="font-size:11.5px; color:#8894a8;">Población de células leucémicas</div>
+            </div>
+            <div style="flex:1; min-width:160px; background:rgba(255,255,255,0.04); border:1px solid #1e2c46; border-radius:8px; padding:10px 12px;">
+              <div style="font-family:var(--mono); font-size:12px; color:#5fd68a; font-weight:700; margin-bottom:3px;">C(t)</div>
+              <div style="font-size:11.5px; color:#8894a8;">Población de células CAR-T</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- SECCIÓN 3: MODELO COMPARTIMENTAL -->
+  <section class="section">
+    <div class="section-label">Sección 3</div>
+    <h2>Modelo Compartimental</h2>
+
+    <p style="font-size:14px; color:var(--ink-mid); margin-bottom:20px; line-height:1.65;">
+      El <strong>Modelo Compartimental</strong> mide las Entradas y Salidas de alguna Población. En nuestro caso, 
+      mide la entrada de células (su Crecimiento) y las salidas de ese tipo de célula (su Decrecimiento).
+    </p>
+
+    <div class="equation-box">
+      <div class="eq-label">Ecuación diferencial del modelo</div>
+      <div class="eq-main">dL/dt &nbsp;=&nbsp; ρL &nbsp;−&nbsp; α·L·C</div>
+      <div class="eq-verbal">
+        <strong style="color:#5b8cff;">Tasa de cambio de células leucémicas</strong> = 
+        <strong style="color:#5fd68a;">Proliferación natural (ρL)</strong> − 
+        <strong style="color:#ef5b5b;">Eliminación por interacción con CAR-T (αLC)</strong>
+      </div>
+    </div>
+
+    <h3>Glosario de variables</h3>
+
+    <table class="params-table">
+      <thead>
+        <tr>
+          <th>Símbolo</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>L(t)</td>
+          <td>Células leucémicas</td>
+          <td>Cantidad de células leucémicas en el tiempo t (días).</td>
+        </tr>
+        <tr>
+          <td>C(t)</td>
+          <td>Células CAR-T</td>
+          <td>Cantidad de células CAR-T en el tiempo t (días).</td>
+        </tr>
+        <tr>
+          <td>ρ</td>
+          <td>Tasa de proliferación</td>
+          <td>Velocidad de multiplicación leucémica. ρL es la tasa de crecimiento.</td>
+        </tr>
+        <tr>
+          <td>α·C·L</td>
+          <td>Eliminación por encuentro</td>
+          <td>Mide la eficiencia con que una CAR-T destruye a una célula leucémica.</td>
+        </tr>
+        <tr>
+          <td>τ<sub>C</sub></td>
+          <td>Vida media de contracción</td>
+          <td>Días que persisten las células CAR-T antes de contraerse o agotarse.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Observaciones del modelo</h3>
+    <ul class="obs-list">
+      <li class="recaida">
+        <span class="obs-num">1</span>
+        <span>Si la <strong>proliferación</strong> de células leucémicas supera la eliminación por la interacción con células CAR-T, se obtiene una situación de <strong>recaída o descontrol</strong>.</span>
+      </li>
+      <li class="remision">
+        <span class="obs-num">2</span>
+        <span>Si la <strong>proliferación</strong> de células leucémicas es inferior al término de eliminación por la interacción con células CAR-T, se obtiene una situación de <strong>control o remisión</strong>.</span>
+      </li>
+    </ul>
+  </section>
+
+  <hr class="divider">
+
+  <!-- SECCIÓN 4: ACTIVIDAD 1 (placeholder para simulador externo) -->
+  <section class="section">
+    <div class="section-label">Sección 4</div>
+    <h2>Actividades con el Simulador</h2>
+
+    <div style="background: var(--blue-light); border: 1.5px solid var(--blue); border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; display:flex; gap:14px; align-items:flex-start;">
+      <div style="font-size:22px; flex-shrink:0; margin-top:2px;">📊</div>
+      <div>
+        <div style="font-weight:700; color:var(--blue); margin-bottom:4px; font-size:14px;">Instrucción general</div>
+        <div style="font-size:13.5px; color:var(--ink-mid); line-height:1.6;">Para las actividades 1 y 2, utiliza el simulador interactivo de gráficas disponible más abajo en esta guía. Observa cómo cambia L(t) al modificar los parámetros ρ (Rho) y α (Alpha) y registra tus observaciones en los espacios indicados.</div>
+      </div>
+    </div>
+
+    <!-- ACTIVIDAD 1 -->
+    <div class="activity-header">
+      <div class="activity-badge">Actividad 1</div>
+      <div class="activity-title">Interpretación Conjunta de las Gráficas</div>
+    </div>
+    <div class="activity-body">
+      <div class="activity-intro">
+        Se analizarán en conjunto ciertas gráficas y, en base a las mismas, se responderán las siguientes preguntas.
+        <div style="margin-top:8px; font-weight:600; color:var(--ink);">¿Qué situaciones podemos observar?</div>
+      </div>
+      <div class="outcomes-hint">
+        <span class="outcome-tag remision">✔ Remisión / Control</span>
+        <span class="outcome-tag control">⚠ Recaída</span>
+        <span class="outcome-tag recaida">✖ Descontrol</span>
+      </div>
+
+      <div class="q-item">
+        <div class="q-num">1</div>
+        <div class="q-content">
+          <div class="q-text">¿Qué comportamiento toma la función L(t)? ¿Cuál sería el caso oncológico asociado?</div>
+          <div class="q-param">Rho = 0.18 &nbsp;&amp;&nbsp; Alpha = 5</div>
+          <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div></div>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-num">2</div>
+        <div class="q-content">
+          <div class="q-text">¿Qué comportamiento toma la función L(t)? ¿Cuál sería el caso oncológico asociado?</div>
+          <div class="q-param">Rho = 0.60 &nbsp;&amp;&nbsp; Alpha = 1.1 </div>
+          <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div></div>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-num">3</div>
+        <div class="q-content">
+          <div class="q-text">¿Qué comportamiento toma la función L(t)? ¿Cuál sería el caso oncológico asociado?</div>
+          <div class="q-param">Rho = 0.60 &nbsp;&amp;&nbsp; Alpha = 5</div>
+          <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVIDAD 2 -->
+    <div class="activity-header" style="margin-top:28px;">
+      <div class="activity-badge">Actividad 2</div>
+      <div class="activity-title">Interpretación Individual de las Gráficas</div>
+    </div>
+    <div class="activity-body">
+      <div class="activity-intro">
+        Analiza de forma individual las gráficas que se forman al interactuar con los parámetros indicados en cada pregunta y responde según lo observado.
+        <div style="margin-top:8px; font-weight:600; color:var(--ink);">¿Qué situaciones podemos observar?</div>
+      </div>
+      <div class="outcomes-hint">
+        <span class="outcome-tag remision">✔ Remisión / Control</span>
+        <span class="outcome-tag control">⚠ Recaída</span>
+        <span class="outcome-tag recaida">✖ Descontrol</span>
+      </div>
+
+      <div class="q-item">
+        <div class="q-num">1</div>
+        <div class="q-content">
+          <div class="q-text">¿Cuál sería el caso oncológico asociado?</div>
+          <div class="q-param">ρ = 0,10 &nbsp;&amp;&nbsp; α = 3,0</div>
+          <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div></div>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-num">2</div>
+        <div class="q-content">
+          <div class="q-text">¿Cuál sería el caso oncológico asociado?</div>
+          <div class="q-param">Rho = 0.4 &nbsp;&amp;&nbsp; Alpha = 0.5</div>
+          <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div></div>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-num">3</div>
+        <div class="q-content">
+          <div class="q-text">¿Cuál sería el caso oncológico asociado?</div>
+          <div class="q-param">Rho = 0.45 &nbsp;&amp;&nbsp; Alpha = 3.0</div>
+          <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div></div>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-num">4</div>
+        <div class="q-content">
+          <div class="q-text">En la pregunta 3, ¿qué caso oncológico se puede visualizar dentro del intervalo de 0 a 20 días? ¿Y después de los 20 días?</div>
+          <div class="q-param">Rho = 0.45 &nbsp;&amp;&nbsp; Alpha = 3.0</div>
+          <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div><div class="ans-line"></div></div>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-num">5</div>
+        <div class="q-content">
+          <div class="q-text">¿Qué casos oncológicos puede visualizar y desde qué intervalos?</div>
+          <div class="q-param">Alpha = 3.5 &nbsp;&amp;&nbsp; Rho = 0.30</div>
+          <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div></div>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-num">6</div>
+        <div class="q-content">
+          <div class="q-text">¿Qué casos oncológicos se pueden visualizar y desde qué intervalos?</div>
+          <div class="q-param">Rho = 0.02 &nbsp;&amp;&nbsp; Alpha = 5.0</div>
+          <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div></div>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-num">7</div>
+        <div class="q-content">
+          <div class="q-text">¿Qué casos oncológicos puede visualizar y desde qué intervalos?</div>
+          <div class="q-param">Alpha = 3.0 &nbsp;&amp;&nbsp; Rho = 0.60</div>
+          <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div></div>
+        </div>
+      </div>
+
+      <div class="q-item">
+        <div class="q-num">8</div>
+        <div class="q-content">
+          <div class="q-text">¿Qué casos oncológicos puede visualizar y desde qué intervalos?</div>
+          <div class="q-param">Rho = 0.40 &nbsp;&amp;&nbsp; Alpha = 0.8</div>
+          <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- SIMULADOR INTERACTIVO DE GRÁFICAS -->
+  <section class="section">
+    <div class="section-label">Herramienta interactiva</div>
+    <h2>Simulador de Gráficas CAR-T</h2>
+    <p style="font-size:14px; color:var(--ink-mid); margin-bottom:18px; line-height:1.65;">
+      Utiliza los controles para modificar los parámetros <strong>ρ</strong> (tasa de proliferación) y <strong>α</strong> (eficiencia de eliminación) y observa cómo evoluciona la población de células leucémicas L(t). Puedes hacer zoom con la rueda del ratón y arrastrar para desplazar la vista.
+    </p>
+
+    <div class="sim-container">
+      <div class="sim-header">
+        <div class="sim-eyebrow">Modelo con perfil CAR-T prescrito</div>
+        <div class="sim-title">Remisión · Control · Recaída</div>
+        <div class="sim-subtitle">
+          Solo la leucemia se modela como ecuación diferencial: <code>dL/dt = ρ_L·L − α·L·C(t)</code>.
+          El perfil C(t) sigue una cinética de Bateman que imita la expansión y contracción real de la infusión CAR-T.
+          Mueve ρ_L y α para explorar los tres desenlaces clínicos.
+        </div>
+        <div class="sim-def-row">
+          <div class="sim-def-item"><b>Remisión o Control</b>Disminución o desaparición de los signos y síntomas del cáncer.</div>
+          <div class="sim-def-item"><b>Recaída</b>El cáncer reaparece tras un periodo de remisión.</div>
+          <div class="sim-def-item"><b>Descontrol</b>Las células cancerígenas crecen. No presenta remisión ni recaída.</div>
+        </div>
+      </div>
+
+      <div class="sim-inner">
+        <div class="sim-grid">
+          <!-- Panel de parámetros -->
+          <div class="sim-card">
+            <div class="sim-panel-title">Parámetros de la leucemia</div>
+
+            <div class="sim-param">
+              <div class="sim-param-head">
+                <span class="sim-param-name">Tasa de crecimiento leucémico <span class="sim-param-sym">(ρ_L)</span></span>
+              </div>
+              <div class="sim-param-desc">Velocidad a la que se multiplican las células cancerosas por día, sin tratamiento</div>
+              <div class="sim-param-row">
+                <input type="range" class="sim-range" id="simRhoL" min="0.02" max="0.60" step="0.01" value="0.18">
+                <div class="sim-param-value" id="simRhoL_val">0.18<small>día⁻¹</small></div>
+              </div>
+            </div>
+
+            <div class="sim-param">
+              <div class="sim-param-head">
+                <span class="sim-param-name">Eficiencia de eliminación CAR-T <span class="sim-param-sym">(α)</span></span>
+              </div>
+              <div class="sim-param-desc">Capacidad de las CAR-T para destruir células leucémicas por encuentro</div>
+              <div class="sim-param-row">
+                <input type="range" class="sim-range" id="simAlpha" min="0.1" max="5.0" step="0.1" value="1.1">
+                <div class="sim-param-value" id="simAlpha_val">1.1<small>×10⁻¹¹</small></div>
+              </div>
+            </div>
+
+            <div class="sim-param" style="margin-bottom:6px;">
+              <span class="sim-toggle" id="simToggleC">▸ Ajustar el perfil C(t) (avanzado)</span>
+            </div>
+
+            <div id="simCSection">
+              <div class="sim-param">
+                <div class="sim-param-head"><span class="sim-param-name">Dosis / expansión máxima <span class="sim-param-sym">(C₀)</span></span></div>
+                <div class="sim-param-desc">Escala de la infusión CAR-T (magnitud del pico de expansión)</div>
+                <div class="sim-param-row">
+                  <input type="range" class="sim-range" id="simC0" min="0.5" max="15" step="0.1" value="6.0">
+                  <div class="sim-param-value" id="simC0_val">6.0<small>×10¹⁰</small></div>
+                </div>
+              </div>
+              <div class="sim-param">
+                <div class="sim-param-head"><span class="sim-param-name">Tasa de expansión <span class="sim-param-sym">(k_a)</span></span></div>
+                <div class="sim-param-desc">Qué tan rápido proliferan las CAR-T tras la infusión</div>
+                <div class="sim-param-row">
+                  <input type="range" class="sim-range" id="simKa" min="0.3" max="2.0" step="0.05" value="0.9">
+                  <div class="sim-param-value" id="simKa_val">0.90<small>día⁻¹</small></div>
+                </div>
+              </div>
+              <div class="sim-param">
+                <div class="sim-param-head"><span class="sim-param-name">Vida media de contracción <span class="sim-param-sym">(τ_C)</span></span></div>
+                <div class="sim-param-desc">Días que persisten las CAR-T antes de contraerse/agotarse</div>
+                <div class="sim-param-row">
+                  <input type="range" class="sim-range" id="simTauC" min="5" max="40" step="1" value="15">
+                  <div class="sim-param-value" id="simTauC_val">15<small>días</small></div>
+                </div>
+              </div>
+            </div>
+
+            <button class="sim-reset-btn" id="simResetBtn">↺ Resetear valores</button>
+          </div>
+
+          <!-- Panel de gráfico -->
+          <div class="sim-card">
+            <div class="sim-chart-head">
+              <div class="sim-chart-title">Evolución de L(t) bajo un perfil CAR-T dado</div>
+            </div>
+            <div class="sim-legend">
+              <div class="sim-legend-item"><span class="sim-swatch solid"></span> L(t) — Leucemia</div>
+              <div class="sim-legend-item"><span class="sim-swatch dash"></span> C(t) — Perfil CAR-T (dado)</div>
+            </div>
+            <div class="sim-chart-box">
+              <canvas id="simChart"></canvas>
+            </div>
+            <div class="sim-status-row">
+              <div class="sim-stat">
+                <div class="sim-stat-label">L(0) inicial</div>
+                <div class="sim-stat-value">3.00×10⁹ cél.</div>
+              </div>
+              <div class="sim-stat">
+                <div class="sim-stat-label">L mínimo</div>
+                <div class="sim-stat-value" id="simStatMin">—</div>
+              </div>
+              <div class="sim-stat">
+                <div class="sim-stat-label">L(50) final</div>
+                <div class="sim-stat-value" id="simStatFinal">—</div>
+              </div>
+              <div class="sim-stat">
+                <div class="sim-stat-label">Día de erradicación</div>
+                <div class="sim-stat-value" id="simStatExt">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sim-footer">
+          Solución numérica de <code>dL/dt = (ρ_L − α·C(t))·L</code> por RK4 (h = 0.01 día).
+          Perfil prescrito: <code>C(t) = C₀·(k_a/(k_a−k_e))·(e⁻ᵏᵉᵗ − e⁻ᵏᵃᵗ)</code> con <code>k_e = 1/τ_C</code> 
+          (tipo Bateman). Frontera absorbente en L &lt; 1 célula: una vez erradicada, la leucemia permanece en remisión.
+          Si L no cruza ese umbral antes de que C(t) se agote, la leucemia retoma su crecimiento exponencial — recaída.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- REFLEXIÓN -->
+  <section class="section">
+    <div class="section-label">Sección final</div>
+    <h2>Espacio de Reflexión e Interacción</h2>
+
+    <div class="reflection-grid">
+      <div class="ref-card">
+        <div class="ref-num">Pregunta 1</div>
+        <div class="ref-q">¿Qué utilidad tiene las matemáticas en el tratamiento de una enfermedad?</div>
+        <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div><div class="ans-line"></div></div>
+      </div>
+
+
+      <div class="ref-card">
+        <div class="ref-num">Pregunta 2</div>
+        <div class="ref-q">¿Qué aprendiste respecto a los conceptos de remisión/control, recaída y descontrol?</div>
+        <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div><div class="ans-line"></div></div>
+      </div>
+
+      <div class="ref-card">
+        <div class="ref-num">Pregunta 3</div>
+        <div class="ref-q">¿Qué limitaciones puedes apreciar en el modelo abordado?</div>
+        <div class="ans-lines"><div class="ans-line"></div><div class="ans-line"></div><div class="ans-line"></div></div>
+      </div>
+    </div>
+
+    <div class="cta-section">
+      <h3>¿Listo para responder el formulario final?</h3>
+      <p>Completa el formulario de evaluación de la sesión a través del siguiente enlace.<br>Tu participación es importante para mejorar esta experiencia de aprendizaje.</p>
+      <a href="https://complementomatematico.github.io/FORM_IV_SEDPEM_EID/" target="_blank" class="cta-button">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Completar formulario de la sesión
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+      </a>
+    </div>
+  </section>
+
+</div><!-- /page -->
+
+<!-- ══════════ JS: Pasos CAR-T ══════════ -->
+<script>
+const stepData = [
+  {
+    title: '🩸 Paso 1: Extracción de sangre',
+    desc: 'Se extrae sangre del paciente para obtener sus propias células T. Estas células forman parte del sistema inmune y son el punto de partida del tratamiento. En este momento, L(t) es alta — muchas células leucémicas están activas.',
+    math: null
+  },
+  {
+    title: '🔬 Paso 2: Reprogramación de células T',
+    desc: 'Las células T extraídas son aisladas y modificadas genéticamente en laboratorio. Se les introduce un receptor artificial CAR (Chimeric Antigen Receptor) que les permite identificar específicamente las células cancerosas del paciente.',
+    math: null
+  },
+  {
+    title: '🧬 Paso 3: Multiplicación de células CAR-T',
+    desc: 'Las células CAR-T reprogramadas se multiplican en laboratorio hasta alcanzar millones de unidades. Este proceso define el parámetro C₀ — la magnitud del pico de expansión una vez que se reinfunden.',
+    math: null
+  },
+  {
+    title: '💉 Paso 4: Infusión al paciente',
+    desc: 'Las células CAR-T se reinfunden al paciente. Aquí comienza el perfil C(t): una expansión rápida (k_a) seguida de una contracción gradual (τ_C). Matemáticamente se modela con una función tipo Bateman.',
+    math: '<code style="font-family:var(--mono);background:#1a1f2e;color:#5b8cff;padding:4px 10px;border-radius:6px;font-size:13px;">C(t) = C₀ · (k_a / (k_a − k_e)) · (e<sup>−k_e·t</sup> − e<sup>−k_a·t</sup>)</code>'
+  },
+  {
+    title: '⚔️ Paso 5: Ataque a las células leucémicas',
+    desc: 'Las CAR-T reconocen y atacan las células leucémicas. El resultado depende del balance entre ρ (proliferación de L) y α (eficiencia de eliminación). Si α domina → remisión. Si ρ domina → descontrol.',
+    math: '<code style="font-family:var(--mono);background:#1a1f2e;color:#5b8cff;padding:4px 10px;border-radius:6px;font-size:13px;">dL/dt = ρ·L − α·L·C(t)</code>'
+  }
+];
+
+function showStep(i) {
+  const d = stepData[i];
+  document.getElementById('stepTitle').textContent = d.title;
+  document.getElementById('stepDesc').textContent = d.desc;
+  const mathEl = document.getElementById('stepMath');
+  if (d.math) { mathEl.innerHTML = d.math; mathEl.style.display = 'block'; }
+  else { mathEl.style.display = 'none'; }
+
+  document.querySelectorAll('.step-btn').forEach((btn, idx) => {
+    if (idx === i) {
+      btn.style.border = '2px solid #2353c7';
+      btn.style.background = '#e8edfa';
+      btn.style.color = '#2353c7';
+    } else {
+      btn.style.border = '2px solid #dde1ed';
+      btn.style.background = '#f7f8fc';
+      btn.style.color = '#6b7390';
+    }
+  });
+}
+</script>
+
+<!-- ══════════ JS: Simulador CAR-T ══════════ -->
+<script>
+(function(){
+// ---------- Perfil C(t) ----------
+function Cprofile(t, C0, ka, ke){
+  if(Math.abs(ka - ke) < 1e-6) ke = ke * 1.0001;
+  return C0 * (ka/(ka-ke)) * (Math.exp(-ke*t) - Math.exp(-ka*t));
+}
+
+// ---------- RK4 ----------
+function simulate(p){
+  const tEnd = 50, h = 0.01;
+  const nSteps = Math.round(tEnd/h);
+  const ke = 1/p.tauC;
+  let L = p.L0;
+  let extinct = false, extDay = null, Lmin = L;
+  const times=[0], Ls=[L], Cs=[Cprofile(0,p.C0,p.ka,ke)];
+  const stride = 10;
+  const f = (t, Lv) => (p.rhoL - p.alpha*Cprofile(t, p.C0, p.ka, ke)) * Lv;
+  for(let i=1;i<=nSteps;i++){
+    const t = (i-1)*h;
+    if(!extinct){
+      const k1 = f(t, L);
+      const k2 = f(t+h/2, L + h/2*k1);
+      const k3 = f(t+h/2, L + h/2*k2);
+      const k4 = f(t+h, L + h*k3);
+      L = L + (h/6)*(k1+2*k2+2*k3+k4);
+      if(L < Lmin) Lmin = L;
+      if(L < 1){ extinct = true; extDay = i*h; L = 0.5; }
+    }
+    if(i % stride === 0){
+      times.push(i*h);
+      Ls.push(extinct ? 0.5 : L);
+      Cs.push(Cprofile(i*h, p.C0, p.ka, ke));
+    }
+  }
+  return {times, Ls, Cs, extinct, extDay, Lmin};
+}
+
+// ---------- UI ----------
+const els = {
+  rhoL: document.getElementById('simRhoL'),
+  alpha: document.getElementById('simAlpha'),
+  C0:   document.getElementById('simC0'),
+  ka:   document.getElementById('simKa'),
+  tauC: document.getElementById('simTauC'),
+};
+const vals = {
+  rhoL: document.getElementById('simRhoL_val'),
+  alpha: document.getElementById('simAlpha_val'),
+  C0:   document.getElementById('simC0_val'),
+  ka:   document.getElementById('simKa_val'),
+  tauC: document.getElementById('simTauC_val'),
+};
+const defaults = { rhoL:0.18, alpha:1.1, C0:6.0, ka:0.9, tauC:15 };
+
+function currentParams(){
+  return {
+    rhoL: parseFloat(els.rhoL.value),
+    alpha: parseFloat(els.alpha.value) * 1e-11,
+    C0: parseFloat(els.C0.value) * 1e10,
+    ka: parseFloat(els.ka.value),
+    tauC: parseFloat(els.tauC.value),
+    L0: 3.0e9
+  };
+}
+
+function toSuperscript(n){
+  const map = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return String(n).split('').map(c=>map[c]||c).join('');
+}
+function fmtSci(x){
+  if(x <= 0) return '0';
+  if(x < 1) return x.toFixed(2);
+  const exp = Math.floor(Math.log10(x));
+  const mant = x / Math.pow(10, exp);
+  return mant.toFixed(2) + '×10' + toSuperscript(exp);
+}
+
+// ---------- Canvas ----------
+const canvas = document.getElementById('simChart');
+const cctx = canvas.getContext('2d');
+let lastData = null;
+const PAD = { left:62, right:18, top:14, bottom:40 };
+const Y_MIN_EXP_FULL = 0, Y_MAX_EXP_FULL = 15;
+const X_MIN_FULL = 0, X_MAX_FULL = 50;
+let view = { xMin:X_MIN_FULL, xMax:X_MAX_FULL, yMinExp:Y_MIN_EXP_FULL, yMaxExp:Y_MAX_EXP_FULL };
+
+function clampView(){
+  const xr=view.xMax-view.xMin, yr=view.yMaxExp-view.yMinExp;
+  if(view.xMin<X_MIN_FULL){view.xMin=X_MIN_FULL;view.xMax=X_MIN_FULL+xr;}
+  if(view.xMax>X_MAX_FULL){view.xMax=X_MAX_FULL;view.xMin=X_MAX_FULL-xr;}
+  if(view.yMinExp<Y_MIN_EXP_FULL){view.yMinExp=Y_MIN_EXP_FULL;view.yMaxExp=Y_MIN_EXP_FULL+yr;}
+  if(view.yMaxExp>Y_MAX_EXP_FULL){view.yMaxExp=Y_MAX_EXP_FULL;view.yMinExp=Y_MAX_EXP_FULL-yr;}
+}
+function resetView(){ view={xMin:X_MIN_FULL,xMax:X_MAX_FULL,yMinExp:Y_MIN_EXP_FULL,yMaxExp:Y_MAX_EXP_FULL}; }
+
+function resizeCanvas(){
+  const box=canvas.parentElement.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  canvas.style.width=box.width+'px'; canvas.style.height=box.height+'px';
+  canvas.width=Math.round(box.width*dpr); canvas.height=Math.round(box.height*dpr);
+  cctx.setTransform(dpr,0,0,dpr,0,0);
+  if(lastData) drawChart(lastData);
+}
+
+function xToPx(t,w){ return PAD.left+(t-view.xMin)/(view.xMax-view.xMin)*(w-PAD.left-PAD.right); }
+function yToPx(v,h){ const cl=Math.max(v,Math.pow(10,view.yMinExp)),exp=Math.log10(cl),fr=(exp-view.yMinExp)/(view.yMaxExp-view.yMinExp); return (h-PAD.bottom)-fr*(h-PAD.top-PAD.bottom); }
+function pxToX(px,w){ return view.xMin+(px-PAD.left)/(w-PAD.left-PAD.right)*(view.xMax-view.xMin); }
+function pxToYexp(py,h){ return view.yMinExp+(1-(py-PAD.top)/(h-PAD.top-PAD.bottom))*(view.yMaxExp-view.yMinExp); }
+
+function drawChart(d){
+  lastData=d;
+  const {times,Ls,Cs,extinct,extDay}=d;
+  const w=canvas.clientWidth, h=canvas.clientHeight;
+  cctx.clearRect(0,0,w,h);
+
+  cctx.font='10.5px "JetBrains Mono",monospace';
+  cctx.fillStyle='#8894a8'; cctx.strokeStyle='rgba(255,255,255,0.05)'; cctx.lineWidth=1;
+
+  const xRange=view.xMax-view.xMin;
+  const xStep=xRange<=5?1:xRange<=15?2:xRange<=25?5:10;
+  const xStart=Math.ceil(view.xMin/xStep)*xStep;
+  cctx.textAlign='center'; cctx.textBaseline='top';
+  for(let t=xStart;t<=view.xMax+0.001;t+=xStep){
+    const px=xToPx(t,w);
+    if(px<PAD.left||px>w-PAD.right) continue;
+    cctx.beginPath(); cctx.moveTo(px,PAD.top); cctx.lineTo(px,h-PAD.bottom); cctx.stroke();
+    cctx.fillText(String(Math.round(t)),px,h-PAD.bottom+8);
+  }
+
+  const yRange=view.yMaxExp-view.yMinExp;
+  const yStep=yRange<=3?1:3;
+  const yStart=Math.ceil(view.yMinExp/yStep)*yStep;
+  for(let e=yStart;e<=view.yMaxExp+0.001;e+=yStep){
+    const py=yToPx(Math.pow(10,e),h);
+    if(py<PAD.top||py>h-PAD.bottom) continue;
+    cctx.beginPath(); cctx.moveTo(PAD.left,py); cctx.lineTo(w-PAD.right,py); cctx.stroke();
+    cctx.textAlign='right'; cctx.textBaseline='middle';
+    cctx.fillText('10'+toSuperscript(e),PAD.left-10,py);
+  }
+
+  cctx.strokeStyle='#2a3a5c'; cctx.lineWidth=1.2;
+  cctx.beginPath();
+  cctx.moveTo(PAD.left,PAD.top); cctx.lineTo(PAD.left,h-PAD.bottom); cctx.lineTo(w-PAD.right,h-PAD.bottom);
+  cctx.stroke();
+
+  cctx.fillStyle='#8894a8'; cctx.textAlign='center'; cctx.font='11px "JetBrains Mono",monospace';
+  cctx.fillText('tiempo (días)',(PAD.left+w-PAD.right)/2,h-8);
+  cctx.save(); cctx.translate(16,(PAD.top+h-PAD.bottom)/2); cctx.rotate(-Math.PI/2);
+  cctx.fillText('células',0,0); cctx.restore();
+
+  const isZoomed=view.xMin!==X_MIN_FULL||view.xMax!==X_MAX_FULL||view.yMinExp!==Y_MIN_EXP_FULL||view.yMaxExp!==Y_MAX_EXP_FULL;
+  if(isZoomed){
+    cctx.fillStyle='rgba(91,140,255,0.18)'; cctx.strokeStyle='rgba(91,140,255,0.4)'; cctx.lineWidth=1;
+    cctx.beginPath(); cctx.roundRect(w-PAD.right-90,PAD.top+2,88,18,4); cctx.fill(); cctx.stroke();
+    cctx.fillStyle='#5b8cff'; cctx.font='9.5px "JetBrains Mono",monospace'; cctx.textAlign='center';
+    cctx.fillText('doble clic = reset',w-PAD.right-46,PAD.top+11);
+  }
+
+  cctx.save();
+  cctx.beginPath(); cctx.rect(PAD.left,PAD.top,w-PAD.left-PAD.right,h-PAD.top-PAD.bottom); cctx.clip();
+
+  if(extinct&&extDay!==null){
+    const px=xToPx(extDay,w);
+    if(px>=PAD.left&&px<=w-PAD.right){
+      cctx.beginPath(); cctx.strokeStyle='rgba(95,214,138,0.5)';
+      cctx.setLineDash([4,4]); cctx.lineWidth=1.3;
+      cctx.moveTo(px,PAD.top); cctx.lineTo(px,h-PAD.bottom); cctx.stroke(); cctx.setLineDash([]);
+      cctx.fillStyle='#5fd68a'; cctx.textAlign='left'; cctx.font='10.5px "JetBrains Mono",monospace';
+      cctx.fillText('  erradicación día '+extDay.toFixed(1),px,PAD.top+4);
+    }
+  }
+
+  cctx.beginPath();
+  times.forEach((t,i)=>{const px=xToPx(t,w),py=yToPx(Ls[i],h);if(i===0) cctx.moveTo(px,py);else cctx.lineTo(px,py);});
+  cctx.lineTo(xToPx(times[times.length-1],w),h-PAD.bottom);
+  cctx.lineTo(xToPx(times[0],w),h-PAD.bottom);
+  cctx.closePath(); cctx.fillStyle='rgba(239,91,91,0.10)'; cctx.fill();
+
+  drawLine(times,Cs,w,h,'#5fa8f0',[7,5]);
+  drawLine(times,Ls,w,h,'#ef5b5b',[]);
+  cctx.restore();
+}
+
+function drawLine(times,series,w,h,color,dash){
+  cctx.beginPath(); cctx.setLineDash(dash);
+  cctx.strokeStyle=color; cctx.lineWidth=2.2;
+  times.forEach((t,i)=>{const px=xToPx(t,w),py=yToPx(series[i],h);if(i===0) cctx.moveTo(px,py);else cctx.lineTo(px,py);});
+  cctx.stroke(); cctx.setLineDash([]);
+}
+
+// Zoom
+canvas.addEventListener('wheel',(ev)=>{
+  ev.preventDefault();
+  const rect=canvas.getBoundingClientRect();
+  const mx=ev.clientX-rect.left, my=ev.clientY-rect.top;
+  const w=canvas.clientWidth, h=canvas.clientHeight;
+  if(mx<PAD.left||mx>w-PAD.right||my<PAD.top||my>h-PAD.bottom) return;
+  const factor=ev.deltaY>0?1.15:1/1.15;
+  const tAtMouse=pxToX(mx,w), yExpAtMouse=pxToYexp(my,h);
+  const xRange=view.xMax-view.xMin, yRange=view.yMaxExp-view.yMinExp;
+  const newXRange=Math.min(Math.max(xRange*factor,2),X_MAX_FULL-X_MIN_FULL);
+  const newYRange=Math.min(Math.max(yRange*factor,2),Y_MAX_EXP_FULL-Y_MIN_EXP_FULL);
+  const xFrac=(tAtMouse-view.xMin)/xRange, yFrac=(yExpAtMouse-view.yMinExp)/yRange;
+  view.xMin=tAtMouse-xFrac*newXRange; view.xMax=view.xMin+newXRange;
+  view.yMinExp=yExpAtMouse-yFrac*newYRange; view.yMaxExp=view.yMinExp+newYRange;
+  clampView(); if(lastData) drawChart(lastData);
+},{passive:false});
+
+// Pan
+let panState=null;
+canvas.addEventListener('mousedown',(ev)=>{
+  const rect=canvas.getBoundingClientRect();
+  const mx=ev.clientX-rect.left, my=ev.clientY-rect.top;
+  const w=canvas.clientWidth, h=canvas.clientHeight;
+  if(mx<PAD.left||mx>w-PAD.right||my<PAD.top||my>h-PAD.bottom) return;
+  panState={startX:ev.clientX,startY:ev.clientY,viewSnap:{...view}};
+  canvas.style.cursor='grabbing';
+});
+window.addEventListener('mousemove',(ev)=>{
+  if(!panState) return;
+  const w=canvas.clientWidth, h=canvas.clientHeight;
+  const dx=ev.clientX-panState.startX, dy=ev.clientY-panState.startY;
+  const xPpx=(panState.viewSnap.xMax-panState.viewSnap.xMin)/(w-PAD.left-PAD.right);
+  const yPpx=(panState.viewSnap.yMaxExp-panState.viewSnap.yMinExp)/(h-PAD.top-PAD.bottom);
+  view.xMin=panState.viewSnap.xMin-dx*xPpx; view.xMax=panState.viewSnap.xMax-dx*xPpx;
+  view.yMinExp=panState.viewSnap.yMinExp+dy*yPpx; view.yMaxExp=panState.viewSnap.yMaxExp+dy*yPpx;
+  clampView(); if(lastData) drawChart(lastData);
+});
+window.addEventListener('mouseup',()=>{panState=null;canvas.style.cursor='crosshair';});
+canvas.addEventListener('dblclick',()=>{resetView();if(lastData)drawChart(lastData);});
+canvas.style.cursor='crosshair';
+
+// Tooltip
+const tooltip=document.createElement('div');
+tooltip.style.cssText='position:absolute;pointer-events:none;background:#101a30;border:1px solid #1e2c46;border-radius:8px;padding:8px 11px;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:#e7edf7;display:none;z-index:10;box-shadow:0 8px 24px rgba(0,0,0,0.35);white-space:nowrap;';
+canvas.parentElement.style.position='relative';
+canvas.parentElement.appendChild(tooltip);
+canvas.addEventListener('mousemove',(ev)=>{
+  if(!lastData||panState) return;
+  const rect=canvas.getBoundingClientRect();
+  const mx=ev.clientX-rect.left;
+  const w=canvas.clientWidth, h=canvas.clientHeight;
+  if(mx<PAD.left||mx>w-PAD.right){tooltip.style.display='none';return;}
+  const t=pxToX(mx,w);
+  if(t<view.xMin||t>view.xMax){tooltip.style.display='none';return;}
+  let idx=0,best=Infinity;
+  lastData.times.forEach((tt,i)=>{const dd=Math.abs(tt-t);if(dd<best){best=dd;idx=i;}});
+  drawChart(lastData);
+  const px=xToPx(lastData.times[idx],w);
+  cctx.save();
+  cctx.beginPath();cctx.rect(PAD.left,PAD.top,w-PAD.left-PAD.right,h-PAD.top-PAD.bottom);cctx.clip();
+  cctx.beginPath();cctx.strokeStyle='rgba(255,255,255,0.18)';cctx.lineWidth=1;
+  cctx.moveTo(px,PAD.top);cctx.lineTo(px,h-PAD.bottom);cctx.stroke();
+  const pyL=yToPx(lastData.Ls[idx],h),pyC=yToPx(lastData.Cs[idx],h);
+  if(pyL>=PAD.top&&pyL<=h-PAD.bottom){cctx.beginPath();cctx.fillStyle='#ef5b5b';cctx.arc(px,pyL,5,0,Math.PI*2);cctx.fill();cctx.beginPath();cctx.strokeStyle='#ef5b5b';cctx.lineWidth=1.5;cctx.arc(px,pyL,8,0,Math.PI*2);cctx.stroke();}
+  if(pyC>=PAD.top&&pyC<=h-PAD.bottom){cctx.beginPath();cctx.fillStyle='#5fa8f0';cctx.arc(px,pyC,3.5,0,Math.PI*2);cctx.fill();}
+  cctx.restore();
+  const tVal=lastData.times[idx],LVal=lastData.Ls[idx],CVal=lastData.Cs[idx];
+  tooltip.style.display='block';
+  tooltip.style.left=Math.min(px+14,w-230)+'px';
+  tooltip.style.top='10px';
+  tooltip.innerHTML=`<div style="color:#8894a8;margin-bottom:6px;font-size:10.5px;">t = ${tVal.toFixed(1)} días</div><div style="color:#ef5b5b;margin-bottom:3px;"><span style="color:#8894a8;font-size:10px;">L(t)  </span><span style="background:rgba(239,91,91,0.12);border:1px solid rgba(239,91,91,0.35);border-radius:5px;padding:2px 7px;">( ${tVal.toFixed(1)}, ${fmtSci(LVal)} )</span></div><div style="color:#5fa8f0;margin-top:4px;"><span style="color:#8894a8;font-size:10px;">C(t)  </span><span>${fmtSci(CVal)}</span></div>`;
+});
+canvas.addEventListener('mouseleave',()=>{tooltip.style.display='none';if(lastData)drawChart(lastData);});
+
+// Stats
+function updateStats(d){
+  document.getElementById('simStatMin').textContent=fmtSci(d.Lmin)+' cél.';
+  document.getElementById('simStatFinal').textContent=fmtSci(d.Ls[d.Ls.length-1])+' cél.';
+  document.getElementById('simStatExt').textContent=d.extinct?d.extDay.toFixed(1)+' d':'— (no alcanzada)';
+}
+
+function refresh(){
+  vals.rhoL.innerHTML=parseFloat(els.rhoL.value).toFixed(2)+'<small>día⁻¹</small>';
+  vals.alpha.innerHTML=parseFloat(els.alpha.value).toFixed(1)+'<small>×10⁻¹¹</small>';
+  vals.C0.innerHTML=parseFloat(els.C0.value).toFixed(1)+'<small>×10¹⁰</small>';
+  vals.ka.innerHTML=parseFloat(els.ka.value).toFixed(2)+'<small>día⁻¹</small>';
+  vals.tauC.innerHTML=parseFloat(els.tauC.value).toFixed(0)+'<small>días</small>';
+  const p=currentParams();
+  const d=simulate(p);
+  drawChart(d);
+  updateStats(d);
+}
+
+Object.keys(els).forEach(k=>els[k].addEventListener('input',refresh));
+document.getElementById('simResetBtn').addEventListener('click',()=>{
+  els.rhoL.value=defaults.rhoL; els.alpha.value=defaults.alpha;
+  els.C0.value=defaults.C0; els.ka.value=defaults.ka; els.tauC.value=defaults.tauC;
+  refresh();
+});
+
+const simCSection=document.getElementById('simCSection');
+const simToggleC=document.getElementById('simToggleC');
+simToggleC.addEventListener('click',()=>{
+  simCSection.classList.toggle('open');
+  simToggleC.textContent=simCSection.classList.contains('open')?'▾ Ajustar el perfil C(t) (avanzado)':'▸ Ajustar el perfil C(t) (avanzado)';
+});
+
+window.addEventListener('resize',resizeCanvas);
+resizeCanvas();
+refresh();
+})();
+</script>
+</body>
+</html>
